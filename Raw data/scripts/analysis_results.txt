@@ -1,0 +1,174 @@
+
+========== DIRECT SURVIVAL (C-INDEX) ==========
+
+--- light_joint ---
+  CMA            : 0.5883 ± 0.0261
+  PoE            : 0.5828 ± 0.0183
+  EF             : 0.5800 ± 0.0171
+
+--- moderate_joint ---
+  PoE            : 0.6066 ± 0.0183
+  CMA            : 0.5909 ± 0.0104
+  EF             : 0.5869 ± 0.0078
+
+--- light_independent ---
+  PoE            : 0.5904 ± 0.0139
+  CMA            : 0.5851 ± 0.0359
+  EF             : 0.5668 ± 0.0198
+
+--- severe_independent ---
+  PoE            : 0.5993 ± 0.0294
+  CMA            : 0.5834 ± 0.0173
+  EF             : 0.5740 ± 0.0250
+
+--- severe_joint ---
+  PoE            : 0.5941 ± 0.0165
+  EF             : 0.5910 ± 0.0119
+  CMA            : 0.5802 ± 0.0085
+
+--- moderate_independent ---
+  PoE            : 0.5883 ± 0.0146
+  CMA            : 0.5882 ± 0.0235
+  EF             : 0.5864 ± 0.0052
+
+========== DOWNSTREAM SURVIVAL (RSF C-INDEX) ==========
+
+--- light_joint ---
+  CMA            : 0.6524 ± 0.0146
+  Mean           : 0.6522 ± 0.0251
+  MIDA           : 0.6493 ± 0.0242
+  MICE           : 0.6491 ± 0.0202
+  missForest     : 0.6442 ± 0.0155
+  GAIN           : 0.6419 ± 0.0215
+  EF             : 0.6378 ± 0.0052
+  PoE            : 0.6259 ± 0.0180
+  SIGMA_clinical_PoE: 0.6000 ± 0.0130
+  MNARSVAE       : 0.5728 ± 0.0319
+  StandardVAE    : 0.5017 ± 0.0449
+  SIGMA_genomic_PoE: 0.5003 ± 0.0021
+
+--- moderate_independent ---
+  MIDA           : 0.6502 ± 0.0092
+  MICE           : 0.6482 ± 0.0141
+  Mean           : 0.6467 ± 0.0121
+  missForest     : 0.6425 ± 0.0167
+  EF             : 0.6415 ± 0.0129
+  GAIN           : 0.6359 ± 0.0166
+  CMA            : 0.6318 ± 0.0117
+  PoE            : 0.6261 ± 0.0144
+  SIGMA_clinical_PoE: 0.5900 ± 0.0249
+  MNARSVAE       : 0.5845 ± 0.0298
+  StandardVAE    : 0.5610 ± 0.0283
+  SIGMA_genomic_PoE: 0.5370 ± 0.0410
+
+--- severe_joint ---
+  MIDA           : 0.6453 ± 0.0164
+  MICE           : 0.6446 ± 0.0140
+  EF             : 0.6418 ± 0.0184
+  missForest     : 0.6412 ± 0.0116
+  Mean           : 0.6412 ± 0.0201
+  CMA            : 0.6408 ± 0.0218
+  GAIN           : 0.6389 ± 0.0139
+  PoE            : 0.6244 ± 0.0110
+  SIGMA_clinical_PoE: 0.5711 ± 0.0210
+  StandardVAE    : 0.5618 ± 0.0290
+  MNARSVAE       : 0.5572 ± 0.0263
+  SIGMA_genomic_PoE: 0.5000 ± 0.0000
+
+--- moderate_joint ---
+  CMA            : 0.6526 ± 0.0185
+  Mean           : 0.6494 ± 0.0214
+  MIDA           : 0.6466 ± 0.0199
+  MICE           : 0.6462 ± 0.0142
+  EF             : 0.6433 ± 0.0159
+  GAIN           : 0.6387 ± 0.0227
+  missForest     : 0.6385 ± 0.0161
+  PoE            : 0.6257 ± 0.0247
+  SIGMA_clinical_PoE: 0.5900 ± 0.0249
+  MNARSVAE       : 0.5845 ± 0.0298
+  StandardVAE    : 0.5610 ± 0.0283
+  SIGMA_genomic_PoE: 0.4936 ± 0.0359
+
+--- light_independent ---
+  MICE           : 0.6503 ± 0.0160
+  MIDA           : 0.6484 ± 0.0212
+  missForest     : 0.6471 ± 0.0136
+  EF             : 0.6463 ± 0.0061
+  Mean           : 0.6439 ± 0.0136
+  GAIN           : 0.6438 ± 0.0177
+  PoE            : 0.6411 ± 0.0167
+  CMA            : 0.6379 ± 0.0184
+  SIGMA_clinical_PoE: 0.6000 ± 0.0130
+  MNARSVAE       : 0.5728 ± 0.0319
+  StandardVAE    : 0.5017 ± 0.0449
+  SIGMA_genomic_PoE: 0.5012 ± 0.0227
+
+--- severe_independent ---
+  Mean           : 0.6437 ± 0.0129
+  missForest     : 0.6416 ± 0.0056
+  GAIN           : 0.6397 ± 0.0080
+  MICE           : 0.6395 ± 0.0090
+  CMA            : 0.6378 ± 0.0230
+  EF             : 0.6370 ± 0.0103
+  MIDA           : 0.6361 ± 0.0079
+  PoE            : 0.6240 ± 0.0092
+  SIGMA_clinical_PoE: 0.5711 ± 0.0210
+  StandardVAE    : 0.5618 ± 0.0290
+  MNARSVAE       : 0.5572 ± 0.0263
+  SIGMA_genomic_PoE: 0.5002 ± 0.0010
+
+========== IMPUTATION (RMSE) ==========
+
+--- EF_severe_joint ---
+  SIGMA: RMSE_c = 0.6370, RMSE_g = 0.9072
+
+--- CMA_light_joint ---
+  SIGMA: RMSE_c = 0.8114, RMSE_g = 1.2024
+
+--- PoE_moderate_independent ---
+  SIGMA: RMSE_c = 0.8090, RMSE_g = 1.0350
+
+--- CMA_light_independent ---
+  SIGMA: RMSE_c = 0.8257, RMSE_g = 1.2096
+
+--- PoE_severe_joint ---
+  SIGMA: RMSE_c = 0.6818, RMSE_g = 0.9616
+
+--- CMA_severe_joint ---
+  SIGMA: RMSE_c = 0.6423, RMSE_g = 0.9211
+
+--- PoE_light_independent ---
+  SIGMA: RMSE_c = 0.8681, RMSE_g = 1.2765
+
+--- EF_light_independent ---
+  SIGMA: RMSE_c = 0.8180, RMSE_g = 1.1853
+
+--- CMA_severe_independent ---
+  SIGMA: RMSE_c = 0.6467, RMSE_g = 0.9274
+
+--- EF_light_joint ---
+  SIGMA: RMSE_c = 0.8122, RMSE_g = 1.1839
+
+--- EF_moderate_independent ---
+  SIGMA: RMSE_c = 0.8031, RMSE_g = 1.0240
+
+--- PoE_severe_independent ---
+  SIGMA: RMSE_c = 0.6824, RMSE_g = 0.9627
+
+--- PoE_moderate_joint ---
+  SIGMA: RMSE_c = 0.8015, RMSE_g = 1.0406
+
+--- CMA_moderate_independent ---
+  SIGMA: RMSE_c = 0.8271, RMSE_g = 1.0365
+
+--- CMA_moderate_joint ---
+  SIGMA: RMSE_c = 0.8240, RMSE_g = 1.0339
+
+--- EF_severe_independent ---
+  SIGMA: RMSE_c = 0.6384, RMSE_g = 0.9115
+
+--- EF_moderate_joint ---
+  SIGMA: RMSE_c = 0.8089, RMSE_g = 1.0277
+
+--- PoE_light_joint ---
+  SIGMA: RMSE_c = 0.8802, RMSE_g = 1.2926
