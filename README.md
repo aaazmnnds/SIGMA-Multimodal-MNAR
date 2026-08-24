@@ -1,6 +1,6 @@
 # SIGMA: Survival Integration via Generative Multi-omics Alignment
 
-Official implementation of **SIGMA**, a multimodal variational autoencoder designed to address **Missing Not At Random (MNAR)** mechanisms in heterogeneous clinical and genomic datasets within a survival-aware generative framework.
+PyTorch implementation of **SIGMA**, a multimodal variational autoencoder designed to address **Missing Not At Random (MNAR)** mechanisms in heterogeneous clinical and genomic datasets within a survival-aware generative framework.
 
 ---
 
@@ -35,7 +35,6 @@ Official implementation of **SIGMA**, a multimodal variational autoencoder desig
 │       ├── evaluate_integration.py     # CCA and Silhouette score computation
 │       ├── evaluate_crossmodal.py      # Cross-modal (C2G and G2C) reconstruction metrics
 │       └── generate_figures.py         # Figure generation for benchmark results
-├── elsarticle/                         # LaTeX manuscript source and TikZ architecture diagrams
 ├── requirements.txt                    # Dependencies
 ├── .gitignore
 └── README.md
@@ -61,7 +60,7 @@ The METABRIC and TCGA cohorts are publicly available via cBioPortal:
 - **METABRIC Breast Cancer Cohort (`brca_metabric`):** [cBioPortal Study](https://www.cbioportal.org/study/summary?id=brca_metabric) / [DataHub](https://github.com/cBioPortal/datahub/tree/master/public/brca_metabric)
 - **TCGA PanCancer Atlas BRCA (`brca_tcga_pan_can_atlas_2018`):** [cBioPortal Study](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018) / [DataHub](https://github.com/cBioPortal/datahub/tree/master/public/brca_tcga_pan_can_atlas_2018)
 
-Place downloaded files in `Raw data/original_datasets/brca_metabric` and `Raw data/original_datasets/brca_tcga_pan_can_atlas_2018`.
+Place downloaded raw cohort files in `Raw data/original_datasets/brca_metabric` and `Raw data/original_datasets/brca_tcga_pan_can_atlas_2018`.
 
 ---
 

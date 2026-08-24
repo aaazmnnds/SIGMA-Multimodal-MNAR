@@ -3,63 +3,54 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
 # Virtual Environments
 venv/
 env/
-ENV/
-env.bak/
-venv.bak/
 myevae_env/
 
-# IDEs
+# IDE / OS metadata
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 .DS_Store
+.agents/
 
-# Large datasets & raw downloads (instructed to download via cBioPortal)
-Raw data/original_datasets/
-Raw data/processed/
-Raw data/mnar_simulation/
-Raw data/results_final/**/*.pt
-Raw data/results_final/**/*.pkl
-
-# LaTeX build artifacts
+# Manuscript & document files (code repository only)
+elsarticle/
+*.tex
+*.pdf
+*.bib
+*.bst
+*.xml
+*.spl
+*.bbl
+*.blg
 *.aux
 *.log
 *.out
 *.toc
-*.bbl
-*.blg
-*.fdb_latexmk
-*.fls
-*.synctex.gz
+*.png
+*.jpg
+*.jpeg
+
+# Data & results
+Raw data/original_datasets/
+Raw data/processed/
+Raw data/mnar_simulation/
+Raw data/evaluation/
+Raw data/figures/
+Raw data/results_final/
+*.npy
+*.pkl
+*.pt
+*.csv
+*.txt
+
+# Exclude scratch & one-off patch scripts outside the standard scripts directory
+patch*.py
+update*.py
+rewrite*.py
+test*.py
+get_survival.py
