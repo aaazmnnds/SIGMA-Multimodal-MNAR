@@ -51,7 +51,7 @@ def main():
     for method in methods:
         unimodal_methods = ['MNARSVAE', 'StandardVAE', 'MICE', 'missForest', 'GAIN', 'MIDA']
         if method in unimodal_methods:
-            print(f"[INTEGRATION] {method} | No latent space — skipping integration metrics")
+            print(f"[INTEGRATION] {method} | No latent space; skipping integration metrics")
             all_summary.append({
                 'method': method,
                 'CCA_corr_mean': float('nan'),

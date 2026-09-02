@@ -4,7 +4,7 @@ PyTorch implementation of **SIGMA**, a multimodal variational autoencoder design
 
 ---
 
-## 📌 Key Architectural Features
+## Key Architectural Features
 
 - **Modality-Specific Encoders:** Maps clinical ($P_c = 9$) and genomic ($P_g = 98$) inputs to unimodal Gaussian latent spaces ($\mathbf{z}_c, \mathbf{z}_g$) with explicit mask concatenation $[\mathbf{X}, \mathbf{M}]$.
 - **Latent Alignment:** InfoNCE-based contrastive loss ($\mathcal{L}_{\text{cross}}$) enforcing patient-level correspondence across modalities.
@@ -16,7 +16,7 @@ PyTorch implementation of **SIGMA**, a multimodal variational autoencoder design
 
 ---
 
-## 📂 Repository Structure & Script Directory
+## Repository Structure and Script Directory
 
 All computational experiments and evaluation protocols are located under `Raw data/scripts/`:
 
@@ -49,7 +49,7 @@ Raw data/scripts/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Installation
 
@@ -71,7 +71,7 @@ Place raw dataset files in `Raw data/original_datasets/brca_metabric` and `Raw d
 
 ---
 
-## 🧪 Reproducing Experiments
+## Reproducing Experiments
 
 ### Step 1: Preprocessing & Fold Generation
 ```bash
@@ -125,6 +125,6 @@ python3 generate_figures.py
 
 ---
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License.
