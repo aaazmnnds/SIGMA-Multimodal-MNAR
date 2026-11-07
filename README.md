@@ -6,7 +6,7 @@ PyTorch implementation of **SIGMA**, a multimodal variational autoencoder design
 
 ## Key Architectural Features
 
-- **Modality-Specific Encoders:** Maps clinical ($P_c = 9$) and genomic ($P_g = 98$) inputs to unimodal Gaussian latent spaces ($\mathbf{z}_c, \mathbf{z}_g$) with explicit mask concatenation $[\mathbf{X}, \mathbf{M}]$.
+- **Modality-Specific Encoders:** Maps clinical ($P_c = 9$) and genomic ($P_g = 98$, comprising 49 PAM50 genes × 2 feature types: expression and copy number alteration) inputs to unimodal Gaussian latent spaces ($\mathbf{z}_c, \mathbf{z}_g$) with explicit mask concatenation $[\mathbf{X}, \mathbf{M}]$.
 - **Latent Alignment:** InfoNCE-based contrastive loss ($\mathcal{L}_{\text{cross}}$) enforcing patient-level correspondence across modalities.
 - **Multimodal Fusion:** Evaluates three distinct fusion strategies:
   - **Early Fusion (EF):** Linear projection of concatenated unimodal latents.
@@ -41,7 +41,13 @@ Raw data/scripts/
 │   ├── evaluate_ablation.py        # RSF survival C-index and PAM50 classification evaluation for the 5 ablation variants
 │   ├── evaluate_integration.py     # Canonical Correlation Analysis (CCA) and t-SNE Silhouette cluster score evaluation
 │   ├── evaluate_crossmodal.py      # Cross-modal reconstruction evaluation (Clinical-to-Genomic and Genomic-to-Clinical)
+│   ├── evaluate_tcga_external.py   # External validation on TCGA-BRCA cohort; cross-cohort generalization of imputation and survival metrics
 │   └── evaluate_direct_survival.py # Direct internal Cox hazard survival evaluation from latent representations
+│
+├── Supplementary & Utility Scripts
+│   ├── benchmark_timing.py         # Wall-clock timing benchmarks for SIGMA and baseline methods
+│   ├── generate_ci_replacements.py # Computes corrected 95% CI half-widths from cross-validation fold results
+│   └── generate_selfmask_tables.py # Generates LaTeX tables for self-masking MNAR supplementary appendix
 │
 └── Visualization
     └── generate_figures.py         # Generates figures for imputation RMSE, C-index, PAM50 accuracy, and t-SNE projections
@@ -115,6 +121,9 @@ python3 evaluate_ablation.py
 # Evaluate Latent Integration (CCA & Silhouette) and Cross-Modal Translation (C2G / G2C)
 python3 evaluate_integration.py
 python3 evaluate_crossmodal.py
+
+# External Validation on TCGA-BRCA
+python3 evaluate_tcga_external.py
 python3 evaluate_direct_survival.py
 ```
 
