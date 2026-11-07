@@ -11,14 +11,19 @@ from sklearn.preprocessing import LabelEncoder
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--condition', type=str, required=True, choices=['independent', 'joint'])
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
     args = parser.parse_args()
 
     BASE = "/Users/azmannads/MO-SVAE/Raw data"
     PROCESSED_DIR = f"{BASE}/processed"
-    RESULTS_DIR = f"{BASE}/results_final"
-    OUTPUT_DIR = f"{BASE}/evaluation"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+        OUTPUT_DIR = f"{BASE}/evaluation_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
+        OUTPUT_DIR = f"{BASE}/evaluation"
     
-    print(f"[PAM50] Config: severity=severe | condition={args.condition}")
+    print(f"[PAM50] Config: severity=severe | condition={args.condition} | mechanism={args.mechanism}")
 
     # Load from METABRIC clinical raw file
     clinical_raw = pd.read_csv(f"{BASE}/original_datasets/brca_metabric/data_clinical_patient.txt", sep='\t', comment='#')

@@ -11,16 +11,25 @@ from sklearn.metrics import accuracy_score, f1_score
 from sksurv.ensemble import RandomSurvivalForest
 from sksurv.util import Surv
 from sksurv.metrics import concordance_index_censored
+import argparse
 import warnings
 warnings.filterwarnings('ignore')
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
+    args = parser.parse_args()
+
     # Use script directory to derive base directory portably across environments
     script_dir = os.path.dirname(os.path.abspath(__file__))
     BASE = os.path.dirname(script_dir)
     PROCESSED_DIR = f"{BASE}/processed"
-    RESULTS_DIR = f"{BASE}/results_final"
-    EVAL_DIR = f"{BASE}/evaluation"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+        EVAL_DIR = f"{BASE}/evaluation_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
+        EVAL_DIR = f"{BASE}/evaluation"
 
     # Define ablation variants to evaluate
     variants = [

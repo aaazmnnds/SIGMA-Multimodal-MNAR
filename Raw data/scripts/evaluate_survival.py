@@ -1,5 +1,6 @@
 # Survival evaluation script for SIGMA study.
 import os, pickle, argparse
+from math import sqrt
 import numpy as np
 import pandas as pd
 import torch
@@ -110,18 +111,75 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--severity', type=str, required=True, choices=['light', 'moderate', 'severe'])
     parser.add_argument('--condition', type=str, required=True, choices=['independent', 'joint'])
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
+    parser.add_argument('--task', type=str, choices=['survival', 'imputation'], default='survival')
     args = parser.parse_args()
     
     BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     PROCESSED_DIR = f"{BASE}/processed"
-    RESULTS_DIR = f"{BASE}/results_final"
-    OUTPUT_DIR = f"{BASE}/evaluation"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+        OUTPUT_DIR = f"{BASE}/evaluation_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
+        OUTPUT_DIR = f"{BASE}/evaluation"
     
     out_path = f"{OUTPUT_DIR}/survival_{args.severity}_{args.condition}"
     if not os.path.exists(out_path):
         os.makedirs(out_path)
         
-    print(f"[SURVIVAL] Config: severity={args.severity} | condition={args.condition}")
+    print(f"[SURVIVAL] Config: severity={args.severity} | condition={args.condition} | mechanism={args.mechanism}")
+    
+    if args.task == 'imputation':
+        import pickle, json, csv
+        methods = ['EF', 'CMA', 'PoE', 'MyeVAE', 'MNARSVAE', 'StandardVAE', 'MICE', 'missForest', 'GAIN', 'MIDA']
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        summary_rows = []
+        for method in methods:
+            method_dir = f"{RESULTS_DIR}/{method}_{args.severity}_{args.condition}"
+            if not os.path.exists(method_dir):
+                print(f"[IMPUTATION] Warning: {method_dir} not found, skipping.")
+                continue
+            rmse_c_vals, rmse_g_vals, mae_c_vals, mae_g_vals = [], [], [], []
+            for k in range(1, 6):
+                res_path = f"{method_dir}/fold_{k}_results.pkl"
+                if not os.path.exists(res_path):
+                    continue
+                with open(res_path, 'rb') as f:
+                    res = pickle.load(f)
+                clinical_only = {'MNARSVAE', 'StandardVAE'}
+                rmse_c_vals.append(res['rmse_c'])
+                if 'rmse_g' in res and method not in clinical_only:
+                    rmse_g_vals.append(res['rmse_g'])
+                mae_c_vals.append(res['mae_c'])
+                if 'mae_g' in res and method not in clinical_only:
+                    mae_g_vals.append(res['mae_g'])
+            if len(rmse_c_vals) < 2:
+                print(f"[IMPUTATION] Warning: insufficient folds for {method}, skipping.")
+                continue
+            import numpy as np
+            n = len(rmse_c_vals)
+            t = 2.776  # t_{0.025, 4}
+            def ci(vals):
+                a = np.mean(vals); s = np.std(vals, ddof=1)
+                h = t * s / np.sqrt(n)
+                return a, h
+            rc_m, rc_h = ci(rmse_c_vals)
+            rg_m, rg_h = ci(rmse_g_vals) if rmse_g_vals else (None, None)
+            mc_m, mc_h = ci(mae_c_vals)
+            mg_m, mg_h = ci(mae_g_vals) if mae_g_vals else (None, None)
+            rg_str = f"{rg_m:.4f}±{rg_h:.4f}" if rg_m is not None else "N/A"
+            mg_str = f"{mg_m:.4f}±{mg_h:.4f}" if mg_m is not None else "N/A"
+            print(f"[IMPUTATION] {method} | RMSE_c: {rc_m:.4f}±{rc_h:.4f} | RMSE_g: {rg_str} | MAE_c: {mc_m:.4f}±{mc_h:.4f} | MAE_g: {mg_str}")
+            summary_rows.append({'method': method, 'RMSE_c_mean': rc_m, 'RMSE_c_ci': rc_h, 'RMSE_g_mean': rg_m, 'RMSE_g_ci': rg_h, 'MAE_c_mean': mc_m, 'MAE_c_ci': mc_h, 'MAE_g_mean': mg_m, 'MAE_g_ci': mg_h})
+        out_path = f"{OUTPUT_DIR}/imputation_summary_{args.severity}_{args.condition}.csv"
+        if summary_rows:
+            keys = summary_rows[0].keys()
+            with open(out_path, 'w', newline='') as f:
+                w = csv.DictWriter(f, fieldnames=keys)
+                w.writeheader(); w.writerows(summary_rows)
+            print(f"[IMPUTATION] Saved: {out_path}")
+        import sys; sys.exit(0)
     
     survival = pd.read_csv(f"{PROCESSED_DIR}/metabric_survival.csv")
     T_all = survival['T'].values.astype(np.float32)
@@ -316,6 +374,7 @@ def main():
                 if col not in ['method', 'fold']:
                     summary_dict[f"{col}_mean"] = df_m[col].mean()
                     summary_dict[f"{col}_std"] = df_m[col].std()
+                    summary_dict[f"{col}_ci"] = 2.776 * df_m[col].std() / sqrt(5)
                     
             all_summary.append(summary_dict)
             

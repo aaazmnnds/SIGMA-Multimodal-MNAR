@@ -88,7 +88,8 @@ class ProductOfExperts(nn.Module):
         var_c = torch.exp(log_var_c) + 1e-8
         var_g = torch.exp(log_var_g) + 1e-8
         
-        var_shared = 1.0 / (1.0 / var_c + 1.0 / var_g)
+        # Include prior precision (standard normal) as third expert per Wu & Goodman (2018)
+        var_shared = 1.0 / (1.0 + 1.0 / var_c + 1.0 / var_g)
         mu_shared = var_shared * (mu_c / var_c + mu_g / var_g)
         log_var_shared = torch.log(var_shared)
         log_var_shared = torch.clamp(log_var_shared, min=-10.0, max=10.0)

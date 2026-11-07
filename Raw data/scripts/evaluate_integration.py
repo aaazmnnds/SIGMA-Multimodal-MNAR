@@ -12,18 +12,23 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--severity', type=str, required=True, choices=['light', 'moderate', 'severe'])
     parser.add_argument('--condition', type=str, required=True, choices=['independent', 'joint'])
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
     args = parser.parse_args()
     
     BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     PROCESSED_DIR = f"{BASE}/processed"
-    RESULTS_DIR = f"{BASE}/results_final"
-    OUTPUT_DIR = f"{BASE}/evaluation"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+        OUTPUT_DIR = f"{BASE}/evaluation_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
+        OUTPUT_DIR = f"{BASE}/evaluation"
     
     out_path = f"{OUTPUT_DIR}/integration_{args.severity}_{args.condition}"
     if not os.path.exists(out_path):
         os.makedirs(out_path)
         
-    print(f"[INTEGRATION] Config: severity={args.severity} | condition={args.condition}")
+    print(f"[INTEGRATION] Config: severity={args.severity} | condition={args.condition} | mechanism={args.mechanism}")
     
     # Load PAM50 subtypes for METABRIC
     clinical_raw_path = f"{BASE}/original_datasets/brca_metabric/data_clinical_patient.txt"

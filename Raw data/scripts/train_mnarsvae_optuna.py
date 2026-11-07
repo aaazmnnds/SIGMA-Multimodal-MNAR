@@ -196,6 +196,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--severity', type=str, required=True, choices=['light','moderate','severe'])
     parser.add_argument('--condition', type=str, required=True, choices=['independent','joint'])
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
     parser.add_argument('--n_trials', type=int, default=50)
     parser.add_argument('--tune_epochs', type=int, default=50)
     parser.add_argument('--max_epochs', type=int, default=200)
@@ -206,14 +207,17 @@ def main():
     np.random.seed(42)
     torch.manual_seed(42)
     
-    BASE = "/home/azman/MO-SVAE/Raw data"
+    BASE = "/home/azman/intrinsic_eval_run/MO-SVAE/Raw data"
     PROCESSED_DIR = f"{BASE}/processed"
-    RESULTS_DIR = f"{BASE}/results_final"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
     
-    out_dir = f"{RESULTS_DIR}/{args.severity}_{args.condition}"
+    out_dir = f"{RESULTS_DIR}/MNARSVAE_{args.severity}_{args.condition}"
     os.makedirs(out_dir, exist_ok=True)
     
-    print(f"[MNARSVAE-OPTUNA] Config: severity={args.severity} | condition={args.condition}")
+    print(f"[MNARSVAE-OPTUNA] Config: severity={args.severity} | condition={args.condition} | mechanism={args.mechanism}")
     
     clinical = pd.read_csv(f"{PROCESSED_DIR}/metabric_clinical.csv")
     survival = pd.read_csv(f"{PROCESSED_DIR}/metabric_survival.csv")
@@ -231,20 +235,29 @@ def main():
     severity_idx = {'light': 0, 'moderate': 1, 'severe': 2}[args.severity]
 
     if args.condition == 'independent':
-        masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_clinical.npy")
+        if args.mechanism == 'selfmask':
+            masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_selfmask_clinical.npy")
+        else:
+            masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_clinical.npy")
         mask_c_features = masks_c[severity_idx].astype(np.float32)
     else:  # joint
-        age = X_c[:, 0]
-        tau = np.median(age)
-        age_indicator = (age > tau).astype(np.float32)
-        calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results.csv")
+        if args.mechanism == 'selfmask':
+            calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results_selfmask.csv")
+        else:
+            calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results.csv")
         def get_params(modality, severity):
             row = calib[(calib['modality'] == modality) & (calib['severity'] == severity)]
             return float(row['alpha'].iloc[0]), float(row['beta'].iloc[0])
         alpha_c, beta_c = get_params('clinical', args.severity)
         np.random.seed(42)
         X_c_features = X_c[:, 1:]
-        prob_c = expit(alpha_c * age_indicator[:, None] * np.abs(X_c_features) + beta_c)
+        if args.mechanism == 'selfmask':
+            prob_c = expit(alpha_c * np.abs(X_c_features) + beta_c)
+        else:
+            age = X_c[:, 0]
+            tau = np.median(age)
+            age_indicator = (age > tau).astype(np.float32)
+            prob_c = expit(alpha_c * age_indicator[:, None] * np.abs(X_c_features) + beta_c)
         mask_c_features = np.random.binomial(1, prob_c).astype(np.float32)
 
     age_mask_col = np.zeros((X_c.shape[0], 1), dtype=np.float32)

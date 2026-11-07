@@ -207,6 +207,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--severity', type=str, required=True, choices=['light', 'moderate', 'severe'])
     parser.add_argument('--condition', type=str, required=True, choices=['independent', 'joint'])
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
     parser.add_argument('--n_trials', type=int, default=50)
     parser.add_argument('--tune_epochs', type=int, default=50)
     parser.add_argument('--max_epochs', type=int, default=200)
@@ -214,15 +215,18 @@ def main():
     parser.add_argument('--batch_size', type=int, default=128)
     args = parser.parse_args()
     
-    BASE = "/home/azman/MO-SVAE/Raw data"
+    BASE = "/home/azman/intrinsic_eval_run/MO-SVAE/Raw data"
     PROCESSED_DIR = f"{BASE}/processed"
     SIMULATION_DIR = f"{BASE}/mnar_simulation"
     FOLDS_DIR = f"{PROCESSED_DIR}/folds"
-    RESULTS_DIR = f"{BASE}/results_final"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
     
-    out_path = f"{RESULTS_DIR}/{args.severity}_{args.condition}"
+    out_path = f"{RESULTS_DIR}/MyeVAE_{args.severity}_{args.condition}"
     os.makedirs(out_path, exist_ok=True)
-    print(f"[MYEVAE-OPTUNA] Config: severity={args.severity} | condition={args.condition}")
+    print(f"[MYEVAE-OPTUNA] Config: severity={args.severity} | condition={args.condition} | mechanism={args.mechanism}")
     
     clinical = pd.read_csv(f"{PROCESSED_DIR}/metabric_clinical.csv")
     genomic = pd.read_csv(f"{PROCESSED_DIR}/metabric_genomic.csv")
@@ -240,8 +244,12 @@ def main():
     T = survival['T'].values.astype(np.float32)
     E = survival['E'].values.astype(np.float32)
     
-    masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_clinical.npy")
-    masks_g_expr = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_genomic.npy")
+    if args.mechanism == 'selfmask':
+        masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_selfmask_clinical.npy")
+        masks_g_expr = np.load(f"{SIMULATION_DIR}/mnar_masks_selfmask_genomic.npy")
+    else:
+        masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_clinical.npy")
+        masks_g_expr = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_genomic.npy")
     
     severity_idx = {'light': 0, 'moderate': 1, 'severe': 2}[args.severity]
     mask_c_features = masks_c[severity_idx]
@@ -250,10 +258,10 @@ def main():
     mask_g_expr_full = masks_g_expr[severity_idx]
     
     if args.condition == 'joint':
-        age = X_c[:, 0]
-        tau = np.median(age)
-        age_indicator = (age > tau).astype(np.float32)
-        calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results.csv")
+        if args.mechanism == 'selfmask':
+            calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results_selfmask.csv")
+        else:
+            calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results.csv")
         def get_params(modality, severity):
             row = calib[(calib['modality'] == modality) & (calib['severity'] == severity)]
             return float(row['alpha'].iloc[0]), float(row['beta'].iloc[0])
@@ -261,10 +269,18 @@ def main():
         alpha_g, beta_g = get_params('genomic', args.severity)
         
         np.random.seed(42)
-        prob_c = expit(alpha_c * age_indicator[:, None] * np.abs(X_c[:, 1:]) + beta_c)
+        if args.mechanism == 'selfmask':
+            prob_c = expit(alpha_c * np.abs(X_c[:, 1:]) + beta_c)
+            prob_g = expit(alpha_g * np.abs(X_expr) + beta_g)
+        else:
+            age = X_c[:, 0]
+            tau = np.median(age)
+            age_indicator = (age > tau).astype(np.float32)
+            prob_c = expit(alpha_c * age_indicator[:, None] * np.abs(X_c[:, 1:]) + beta_c)
+            prob_g = expit(alpha_g * age_indicator[:, None] * np.abs(X_expr) + beta_g)
+
         mask_c_features = np.random.binomial(1, prob_c).astype(np.float32)
         mask_c_full = np.concatenate([np.zeros((X_c.shape[0], 1), dtype=np.float32), mask_c_features], axis=1)
-        prob_g = expit(alpha_g * age_indicator[:, None] * np.abs(X_expr) + beta_g)
         mask_g_expr_full = np.random.binomial(1, prob_g).astype(np.float32)
         
     X_c_masked = X_c.copy()

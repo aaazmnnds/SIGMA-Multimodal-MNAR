@@ -39,6 +39,7 @@ def main():
     parser.add_argument('--method', type=str, required=True, choices=['MICE', 'missForest'])
     parser.add_argument('--severity', type=str, required=True, choices=['light', 'moderate', 'severe'])
     parser.add_argument('--condition', type=str, required=True, choices=['independent', 'joint'])
+    parser.add_argument('--mechanism', type=str, choices=['threshold', 'selfmask'], default='threshold')
     parser.add_argument('--n_trials', type=int, default=50)
     args = parser.parse_args()
 
@@ -46,12 +47,15 @@ def main():
     
     BASE = "/home/azman/MO-SVAE/Raw data"
     PROCESSED_DIR = f"{BASE}/processed"
-    RESULTS_DIR = f"{BASE}/results_final"
+    if args.mechanism == 'selfmask':
+        RESULTS_DIR = f"{BASE}/results_selfmask"
+    else:
+        RESULTS_DIR = f"{BASE}/results_final"
     
     out_dir = f"{RESULTS_DIR}/{args.method}_{args.severity}_{args.condition}"
     os.makedirs(out_dir, exist_ok=True)
     
-    print(f"[BASELINES-OPTUNA] Method: {args.method} | severity={args.severity} | condition={args.condition}")
+    print(f"[BASELINES-OPTUNA] Method: {args.method} | severity={args.severity} | condition={args.condition} | mechanism={args.mechanism}")
     
     clinical = pd.read_csv(f"{PROCESSED_DIR}/metabric_clinical.csv")
     genomic = pd.read_csv(f"{PROCESSED_DIR}/metabric_genomic.csv")
@@ -67,15 +71,19 @@ def main():
     severity_idx = {'light': 0, 'moderate': 1, 'severe': 2}[args.severity]
 
     if args.condition == 'independent':
-        masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_clinical.npy")
-        masks_g = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_genomic.npy")
+        if args.mechanism == 'selfmask':
+            masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_selfmask_clinical.npy")
+            masks_g = np.load(f"{SIMULATION_DIR}/mnar_masks_selfmask_genomic.npy")
+        else:
+            masks_c = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_clinical.npy")
+            masks_g = np.load(f"{SIMULATION_DIR}/mnar_masks_metabric_genomic.npy")
         mask_c_features = masks_c[severity_idx].astype(np.float32)
         mask_g_expr = masks_g[severity_idx].astype(np.float32)
     else:  # joint
-        age = X_c[:, 0]
-        tau = np.median(age)
-        age_indicator = (age > tau).astype(np.float32)
-        calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results.csv")
+        if args.mechanism == 'selfmask':
+            calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results_selfmask.csv")
+        else:
+            calib = pd.read_csv(f"{SIMULATION_DIR}/calibration_results.csv")
         def get_params(modality, severity):
             row = calib[(calib['modality'] == modality) & (calib['severity'] == severity)]
             return float(row['alpha'].iloc[0]), float(row['beta'].iloc[0])
@@ -83,10 +91,17 @@ def main():
         alpha_g, beta_g = get_params('genomic', args.severity)
         np.random.seed(42)
         X_c_features = X_c[:, 1:]
-        prob_c = expit(alpha_c * age_indicator[:, None] * np.abs(X_c_features) + beta_c)
-        mask_c_features = np.random.binomial(1, prob_c).astype(np.float32)
         X_expr = X_g[:, :49]
-        prob_g = expit(alpha_g * age_indicator[:, None] * np.abs(X_expr) + beta_g)
+        if args.mechanism == 'selfmask':
+            prob_c = expit(alpha_c * np.abs(X_c_features) + beta_c)
+            prob_g = expit(alpha_g * np.abs(X_expr) + beta_g)
+        else:
+            age = X_c[:, 0]
+            tau = np.median(age)
+            age_indicator = (age > tau).astype(np.float32)
+            prob_c = expit(alpha_c * age_indicator[:, None] * np.abs(X_c_features) + beta_c)
+            prob_g = expit(alpha_g * age_indicator[:, None] * np.abs(X_expr) + beta_g)
+        mask_c_features = np.random.binomial(1, prob_c).astype(np.float32)
         mask_g_expr = np.random.binomial(1, prob_g).astype(np.float32)
 
     age_mask_col = np.zeros((X_c.shape[0], 1), dtype=np.float32)
