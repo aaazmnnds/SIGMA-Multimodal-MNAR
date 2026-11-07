@@ -19,7 +19,7 @@ Also generates footnote updates at the end.
 import os
 import re
 
-TEX_PATH = "/Users/nazu.ds/Documents/Research Collections/MO-SVAE/BMC_Bioinformatics_Submission/sn_article_sigma.tex"
+TEX_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "BMC_Bioinformatics_Submission", "sn_article_sigma.tex"))
 REPL_PATH = "/tmp/ci_replacements.txt"
 PM_PATTERN = re.compile(r"(\$(?:\\mathbf\{)?)([\d\.\-]+)\s*\\pm\s*([\d\.\-]+)\}?\s*\$")
 

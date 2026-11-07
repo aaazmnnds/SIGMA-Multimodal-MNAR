@@ -2,7 +2,7 @@
 generate_selfmask_tables.py
 
 Reads selfmask evaluation summary CSVs from:
-  /Users/nazu.ds/Documents/Research Collections/MO-SVAE/Raw data/evaluation_selfmask/
+  <repo_root>/Raw data/evaluation_selfmask/
 for sev in ['light', 'moderate', 'severe'].
 
 Generates complete LaTeX table environments for:
@@ -18,7 +18,7 @@ import math
 import os
 import pandas as pd
 
-BASE_DIR = "/Users/nazu.ds/Documents/Research Collections/MO-SVAE/Raw data/evaluation_selfmask"
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "evaluation_selfmask"))
 SEVS = ["light", "moderate", "severe"]
 METHODS = ["EF", "CMA", "PoE", "MyeVAE", "MICE", "missForest", "GAIN", "MIDA", "StandardVAE", "MNARSVAE"]
 NAME_MAP = {

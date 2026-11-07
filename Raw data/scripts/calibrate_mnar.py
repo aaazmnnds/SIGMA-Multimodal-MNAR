@@ -21,7 +21,7 @@ def main():
     args = parse_args()
     mechanism = args.mechanism
 
-    BASE = "/Users/nazu.ds/Documents/Research Collections/MO-SVAE/Raw data"
+    BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     PROCESSED_DIR = f"{BASE}/processed"
     CLINICAL_FILE = f"{PROCESSED_DIR}/metabric_clinical.csv"
     GENOMIC_FILE = f"{PROCESSED_DIR}/metabric_genomic.csv"
